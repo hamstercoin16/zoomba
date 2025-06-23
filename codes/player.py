@@ -9,7 +9,8 @@ SPRITE_COUNT = 16  # Всего 16 кадров для анимации
 IDLE_FRAME_COUNT = 4  # Кадры для стояния (например, с 1 по 4)
 TILE_SIZE = 64
 GRAVITY = 1
-JUMP_STRENGTH = -15
+jump = False    
+jump_speed = 15  # Скорость прыжка
 
 class Player:
     def __init__(self, x, y):
@@ -53,7 +54,23 @@ class Player:
                 sys.exit()
 
         return frames
+    
+    def handle_input(self):
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_SPACE]:
+            self.jump()
+        if keys[pygame.K_LEFT]:
+            self.direction = -1
+        elif keys[pygame.K_RIGHT]:
+            self.direction = 1
+        else:
+            self.direction = 0
 
+    def jump(self):
+        if self.on_ground:
+            self.dy = -jump_speed
+            self.on_ground = False
+      
     def apply_gravity(self):
         self.dy += GRAVITY
         self.y += self.dy
@@ -62,7 +79,7 @@ class Player:
     def move(self, tiles):
         self.x += self.direction * self.speed
         self.rect.x = self.x
-
+       
         # Проверка горизонтальных столкновений
         for tile in tiles:
             if self.rect.colliderect(tile):
@@ -104,6 +121,7 @@ class Player:
         self.image = self.frames[int(self.frame_index)]
 
     def update(self, tiles):
+        self.handle_input()
         self.move(tiles)    
         self.update_animation()
 
